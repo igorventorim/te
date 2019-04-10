@@ -23,8 +23,8 @@ def KNN( X, y, classname ):
     #print skf
 
     # instantiate learning model (k = 3)
-    knn = KNeighborsClassifier(n_neighbors=3)
-
+    knn = KNeighborsClassifier(n_neighbors=9)
+    # import ipdb; ipdb.set_trace()
     y_pred_overall = []
     y_test_overall = []
 
@@ -35,8 +35,8 @@ def KNN( X, y, classname ):
         knn.fit(X_train, y_train)
         y_pred = knn.predict(X_test)
         
-        #print '\ny_test[0]=', y_test[0], '\ny_pred[0]=', y_pred[0]
-        #pause()
+        # print '\ny_test[0]=', y_test[0], '\ny_pred[0]=', y_pred[0]
+        # pause()
         
         y_pred_overall = np.concatenate([y_pred_overall, y_pred])
         y_test_overall = np.concatenate([y_test_overall, y_test])
@@ -50,6 +50,15 @@ def KNN( X, y, classname ):
 
     print('KNN Classification Report: ')
     print (classification_report(y_test_overall, y_pred_overall, target_names=classname, digits=3))
+    # result=[]
+    # for i in range(len(y_test_overall)):
+    #     if y_test_overall[i] == y_pred_overall[i]:
+    #         result.append(True)
+    #     else:
+    #         result.append(False)
+    # print(result)
+    # print(y_test_overall)
+    # print(y_pred_overall)
     print('Accuracy=', '%.2f %%' % (100*accuracy_score(y_test_overall, y_pred_overall)))
     print('KNN Confusion Matrix: ')
     print (confusion_matrix(y_test_overall, y_pred_overall))

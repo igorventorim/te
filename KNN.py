@@ -23,7 +23,7 @@ def KNN( X, y, classname ):
     #print skf
 
     # instantiate learning model (k = 3)
-    knn = KNeighborsClassifier(n_neighbors=9)
+    knn = KNeighborsClassifier(n_neighbors=3)
     # import ipdb; ipdb.set_trace()
     y_pred_overall = []
     y_test_overall = []

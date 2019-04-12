@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 from KNN import KNN
+from BayesClassifier import BayesClassifier
 
 
 class TE():
@@ -333,29 +334,22 @@ class TE():
 def main():
     print('Executing main() ....')
 
-    #f = './Tennessee_Eastman/TE_process/data/d16.dat'
-    #f = './Tennessee_Eastman/TE_process/data/d16_te.dat'
-
-    # f = './Tennessee_Eastman/te/out/TE_data_me10.dat'
-
-    #visualsize_vars(infile=f, dropfigfile='/tmp/outfig.svg')
-    
     te = TE()
     #te.plotscatter('/home/thomas/Dropbox/software/TE/Tennessee_Eastman/te/out/all.csv')
-    #te.visualize_vars(infile=f, dropfigfile='/tmp/outfig.svg', title='Todas as variaveis')
 
+    feat1 = 0 # First feature
+    feat2 = 9 # Second feature
 
-    #feat1 = 49 # First feature
-    #feat2 = 12 # Second feature
-    #te.plotscatter('./Tennessee_Eastman/te/out/all.csv', feat1, feat2)
-    #te.visualize_vars(infile=f, dropfigfile='/tmp/outfig1.svg', title='Subconjunto de variaveis', mask=[feat1,feat2])
     # print(te.datacsvreadTE('./Tennessee_Eastman/te/out/all.csv'))
     X, Y, y, ynum, classname = te.labelledcsvread('./out/all.csv')
-    # print(classname)
-    # print(y)
-    # print(Y)
-    # print(X)
-    KNN(X,ynum,classname)
+    # te.visualize_vars(X=X,dropfigfile='/tmp/outfig.svg', title='Todas as variaveis')
+    # te.plotscatter('./out/all.csv', feat1, feat2)
+    # te.visualize_vars(X=X, dropfigfile='/tmp/outfig1.svg', title='Subconjunto de variaveis', mask=[feat1,feat2])
+
+    # KNN(X,ynum,classname)
+
+    bayes = BayesClassifier(X,ynum,classname)
+    bayes.run()
 
 if __name__ == "__main__":
     main()

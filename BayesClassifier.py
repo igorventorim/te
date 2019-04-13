@@ -7,13 +7,23 @@ from sklearn.model_selection import StratifiedKFold
 # training data to estimate the parameters necessary for classification.
 class BayesClassifier():
 
-	def __init__(self,X,y,classname):
+	def __init__(self,X,y,classname,priors=None):
+		self.SMALL_SAMPLE_CORRECTION = 0.0000001
 		self.X = X
 		self.y = y
 		self.classname = classname
+		
+		#Train parameters
+		self.averages = {}
+		self.variances = {}
+		self.covariance_matrix = {}
+		if priors is None:
+			self.priors = {}
+		else:
+			self.priors = priors
 
 	def run(self):
-		print('Classifier: Bayes\n')
+		print('Classifier: Gaussian Naive Bayes\n')
 		skf = StratifiedKFold(n_splits=10, shuffle=True)
 
 		y_pred_overall = []
@@ -25,7 +35,7 @@ class BayesClassifier():
 			y_train, y_test = self.y[train_index], self.y[test_index]
 			self.fit(X_train,y_train)
 			y_pred = self.predict(X_test)
-
+			# import ipdb; ipdb.set_trace()
 			y_pred_overall = np.concatenate([y_pred_overall, y_pred])
 			y_test_overall = np.concatenate([y_test_overall, y_test])
 
@@ -34,22 +44,54 @@ class BayesClassifier():
 		print('Accuracy=', '%.2f %%' % (100*accuracy_score(y_test_overall, y_pred_overall)))
 		print('Bayes Confusion Matrix: ')
 		print (confusion_matrix(y_test_overall, y_pred_overall))
+		print("\n\n\n")
 
-	def fit(self,X_train,y_train):
+
+	def fit(self,X_train,y_train,priors=None):
 		classes = {}
+
+		#Classes split
 		for x in zip(X_train,y_train):
 			if x[1] in classes:
 				classes[x[1]].append(x[0])
 			else:
 				classes[x[1]] = [x[0]]
-		averages = {}
+		
+		#Setting classifier parameters
 		for key in classes:
-			average = np.average(classes[key],axis=0)
-			variance = np.var(classes[key],axis=0)
+			#Adding average of class
+			self.averages[key] = np.average(classes[key],axis=0) + self.SMALL_SAMPLE_CORRECTION
 
-		import ipdb; ipdb.set_trace()
+			#Adding variance of class
+			self.variances[key] = np.var(classes[key],axis=0) + self.SMALL_SAMPLE_CORRECTION
+			
+			self.covariance_matrix[key] = np.cov(np.array(classes[key]),rowvar=False)
+
+			#Set equiprobable classes
+			if priors is None:
+				self.priors[key] = 1 / float(len(classes))
+		
 
 	def predict(self,X_test):
+		y_pred = []
+		for sample in X_test:
+			posterior = []
+			for label in range(0,len(self.classname)):
+				posterior.append(self.gaussian_post(label,sample))
+			posterior = np.array(posterior)
+			# import ipdb; ipdb.set_trace()
+			# y_pred.append(self.classname[posterior.argmax()])
+			y_pred.append(posterior.argmax())
+
+		return y_pred
+
+
+	def gaussian_post(self,classlabel,sample):
+		term_a = (1/(np.sqrt(2*np.pi*np.array(self.variances[classlabel]))))
+		term_b = np.exp(-((np.array(sample)-np.array(self.averages[classlabel]))**2)/(2*np.array(self.variances[classlabel])))
+		return np.prod(term_a *term_b) * self.priors[classlabel]		
+
+	#Quadratic Discriminant Analysis
+	def qda(self,classlabel,sample):
 		pass
-
-
+		# np.log(self.covariance_matrix[classlabel]) + (np.array(sample) - self.variances[key]).T * 

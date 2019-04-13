@@ -41,6 +41,7 @@ def KNN( X, y, classname ):
         y_pred_overall = np.concatenate([y_pred_overall, y_pred])
         y_test_overall = np.concatenate([y_test_overall, y_test])
 
+
     '''
         print(classification_report(y_test, y_pred, target_names=classname))
         print(f1_score(y_test, y_pred, average='micro'))
@@ -62,7 +63,7 @@ def KNN( X, y, classname ):
     print('Accuracy=', '%.2f %%' % (100*accuracy_score(y_test_overall, y_pred_overall)))
     print('KNN Confusion Matrix: ')
     print (confusion_matrix(y_test_overall, y_pred_overall))
-
+    print("\n\n\n")
 
 if __name__ == '__main__':
 

@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import csv
 from KNN import KNN
 from BayesClassifier import BayesClassifier
+from QDA_SKLEARN import QDA_SKLEARN
 
 
 class TE():
@@ -346,7 +347,9 @@ def main():
     # te.plotscatter('./out/all.csv', feat1, feat2)
     # te.visualize_vars(X=X, dropfigfile='/tmp/outfig1.svg', title='Subconjunto de variaveis', mask=[feat1,feat2])
 
-    # KNN(X,ynum,classname)
+    KNN(X,ynum,classname)
+    clf = QDA_SKLEARN(X,ynum,classname)
+    clf.run()
 
     bayes = BayesClassifier(X,ynum,classname)
     bayes.run()

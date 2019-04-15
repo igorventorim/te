@@ -8,8 +8,9 @@ from sklearn.model_selection import StratifiedKFold
 class BayesClassifier():
 
 	def __init__(self,X,y,classname,priors=None):
-		self.SMALL_SAMPLE_CORRECTION = 0.0000001
-		self.X = X
+		#self.SMALL_SAMPLE_CORRECTION = 0.0000001
+		#REMOVE LAST ELEMENT
+		self.X = X.T[:-1].T
 		self.y = y
 		self.classname = classname
 		
@@ -17,6 +18,7 @@ class BayesClassifier():
 		self.averages = {}
 		self.variances = {}
 		self.covariance_matrix = {}
+		self.d = 0
 		if priors is None:
 			self.priors = {}
 		else:
@@ -25,7 +27,6 @@ class BayesClassifier():
 	def run(self):
 		print('Classifier: Gaussian Naive Bayes\n')
 		skf = StratifiedKFold(n_splits=10, shuffle=True)
-
 		y_pred_overall = []
 		y_test_overall = []
 
@@ -52,18 +53,22 @@ class BayesClassifier():
 
 		#Classes split
 		for x in zip(X_train,y_train):
+			# REMOVE LAST ELEMENT [:-1]
 			if x[1] in classes:
 				classes[x[1]].append(x[0])
 			else:
 				classes[x[1]] = [x[0]]
+
+		#REMOVE THE LAST FEATURE OF THE COUNT
+		self.d = len(X_train[0])
 		
 		#Setting classifier parameters
 		for key in classes:
 			#Adding average of class
-			self.averages[key] = np.average(classes[key],axis=0) + self.SMALL_SAMPLE_CORRECTION
+			self.averages[key] = np.average(classes[key],axis=0) #+ self.SMALL_SAMPLE_CORRECTION
 
 			#Adding variance of class
-			self.variances[key] = np.var(classes[key],axis=0) + self.SMALL_SAMPLE_CORRECTION
+			self.variances[key] = np.var(classes[key],axis=0) #+ self.SMALL_SAMPLE_CORRECTION
 			
 			self.covariance_matrix[key] = np.cov(np.array(classes[key]),rowvar=False)
 
@@ -77,7 +82,8 @@ class BayesClassifier():
 		for sample in X_test:
 			posterior = []
 			for label in range(0,len(self.classname)):
-				posterior.append(self.gaussian_post(label,sample))
+				# posterior.append(self.gaussian_post(label,sample))
+				posterior.append(self.qda(label,sample))
 			posterior = np.array(posterior)
 			# import ipdb; ipdb.set_trace()
 			# y_pred.append(self.classname[posterior.argmax()])
@@ -93,5 +99,16 @@ class BayesClassifier():
 
 	#Quadratic Discriminant Analysis
 	def qda(self,classlabel,sample):
-		pass
-		# np.log(self.covariance_matrix[classlabel]) + (np.array(sample) - self.variances[key]).T * 
+
+		term_a = (1/(((2*np.pi)**(self.d/float(2)))*(np.linalg.det(self.covariance_matrix[classlabel])**(1/float(2)))))
+		term_b = np.exp(-1/float(2) * (sample - self.averages[classlabel]).T * np.linalg.inv(self.covariance_matrix[classlabel]) * (sample - self.averages[classlabel]))
+
+		# term_1 = -(1/float(2)) * sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * sample
+		# term_2 = sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * self.averages[classlabel]
+		# term_3 = - 1/float(2)*self.averages[classlabel].T * np.linalg.inv(self.covariance_matrix[classlabel])*self.averages[classlabel]
+		# term_4 = -(1/float(2))*np.log(np.linalg.det(self.covariance_matrix[classlabel])) 
+		# term_5 =  np.log(np.pi*self.priors[classlabel])
+		result =  np.prod(term_a*term_b) * self.priors[classlabel]
+
+		# return np.prod(term_a *term_b) * self.priors[classlabel]
+		return result

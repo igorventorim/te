@@ -101,14 +101,12 @@ class BayesClassifier():
 	def qda(self,classlabel,sample):
 
 		term_a = (1/(((2*np.pi)**(self.d/float(2)))*(np.linalg.det(self.covariance_matrix[classlabel])**(1/float(2)))))
-		term_b = np.exp(-1/float(2) * (sample - self.averages[classlabel]).T * np.linalg.inv(self.covariance_matrix[classlabel]) * (sample - self.averages[classlabel]))
+		term_b = np.exp(-1/float(2) * ( np.dot(np.dot((sample - self.averages[classlabel]).T, np.linalg.inv(self.covariance_matrix[classlabel])), (sample - self.averages[classlabel]))))
 
 		# term_1 = -(1/float(2)) * sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * sample
 		# term_2 = sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * self.averages[classlabel]
 		# term_3 = - 1/float(2)*self.averages[classlabel].T * np.linalg.inv(self.covariance_matrix[classlabel])*self.averages[classlabel]
 		# term_4 = -(1/float(2))*np.log(np.linalg.det(self.covariance_matrix[classlabel])) 
 		# term_5 =  np.log(np.pi*self.priors[classlabel])
-		result =  np.prod(term_a*term_b) * self.priors[classlabel]
 
-		# return np.prod(term_a *term_b) * self.priors[classlabel]
-		return result
+		return term_a*term_b * self.priors[classlabel]

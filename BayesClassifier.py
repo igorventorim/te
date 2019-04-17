@@ -82,8 +82,7 @@ class BayesClassifier():
 		for sample in X_test:
 			posterior = []
 			for label in range(0,len(self.classname)):
-				# posterior.append(self.gaussian_post(label,sample))
-				posterior.append(self.qda(label,sample))
+				posterior.append(self.gaussian_post(label,sample))
 			posterior = np.array(posterior)
 			# import ipdb; ipdb.set_trace()
 			# y_pred.append(self.classname[posterior.argmax()])
@@ -97,16 +96,3 @@ class BayesClassifier():
 		term_b = np.exp(-((np.array(sample)-np.array(self.averages[classlabel]))**2)/(2*np.array(self.variances[classlabel])))
 		return np.prod(term_a *term_b) * self.priors[classlabel]		
 
-	#Quadratic Discriminant Analysis
-	def qda(self,classlabel,sample):
-
-		term_a = (1/(((2*np.pi)**(self.d/float(2)))*(np.linalg.det(self.covariance_matrix[classlabel])**(1/float(2)))))
-		term_b = np.exp(-1/float(2) * ( np.dot(np.dot((sample - self.averages[classlabel]).T, np.linalg.inv(self.covariance_matrix[classlabel])), (sample - self.averages[classlabel]))))
-
-		# term_1 = -(1/float(2)) * sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * sample
-		# term_2 = sample.T * np.linalg.inv(self.covariance_matrix[classlabel]) * self.averages[classlabel]
-		# term_3 = - 1/float(2)*self.averages[classlabel].T * np.linalg.inv(self.covariance_matrix[classlabel])*self.averages[classlabel]
-		# term_4 = -(1/float(2))*np.log(np.linalg.det(self.covariance_matrix[classlabel])) 
-		# term_5 =  np.log(np.pi*self.priors[classlabel])
-
-		return term_a*term_b * self.priors[classlabel]

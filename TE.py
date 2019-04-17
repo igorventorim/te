@@ -11,6 +11,7 @@ import csv
 from KNN import KNN
 from BayesClassifier import BayesClassifier
 from QDA_SKLEARN import QDA_SKLEARN
+from QDAClassifier import QDAClassifier
 
 
 class TE():
@@ -351,8 +352,13 @@ def main():
     clf = QDA_SKLEARN(X,ynum,classname)
     clf.run()
 
+    qda = QDAClassifier(X,ynum,classname)
+    qda.run()
+
     bayes = BayesClassifier(X,ynum,classname)
     bayes.run()
+
+
 
 if __name__ == "__main__":
     main()
